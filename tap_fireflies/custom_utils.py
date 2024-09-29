@@ -155,3 +155,9 @@ class GraphQLHelper:
                     LOGGER.info("Exceeded Fireflies' API limit. Wait for a minute.")
                     time.sleep(60)
         return result_dict, num_of_record_read
+
+
+# A minimal version of https://github.com/vibeus/tap-shopify-customized/blob/master/tap_shopify/context.py
+# We use it to store multiple states
+class Context:
+    state = {}

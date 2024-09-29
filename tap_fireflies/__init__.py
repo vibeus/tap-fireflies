@@ -6,6 +6,7 @@ from singer import utils, metadata, Transformer
 from singer.catalog import Catalog, CatalogEntry
 from singer.schema import Schema
 from tap_fireflies.streams import create_stream
+from tap_fireflies.custom_utils import Context
 
 REQUIRED_CONFIG_KEYS = ["access_token", "endpoint_url", "start_date"]
 LOGGER = singer.get_logger()
@@ -57,6 +58,8 @@ def sync(config, state, catalog):
     for stream in catalog.get_selected_streams(state):
         LOGGER.info("Syncing stream:" + stream.tap_stream_id)
 
+        if not Context.state.get('bookmarks'):
+            Context.state['bookmarks'] = {}
         singer.write_schema(
             stream_name=stream.tap_stream_id,
             schema=stream.schema.to_dict(),
@@ -73,8 +76,8 @@ def sync(config, state, catalog):
             record = t.transform(row, schema, mdata)
             # write one or more rows to the stream:
             singer.write_records(stream.tap_stream_id, [record])
-
-        singer.write_state({stream.tap_stream_id: data_stream.state})
+        Context.state['bookmarks'].update({stream.tap_stream_id: data_stream.state})
+        singer.write_state(Context.state)
 
 
 @utils.handle_top_exception(LOGGER)
