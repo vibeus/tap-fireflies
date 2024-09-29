@@ -14,19 +14,19 @@
 	    	"type": "string"
 		},
 		"organizer_email": {
-	    	"type": "string"
+	    	"type": ["string"]
 		},
 		"summary_status": {
 	    	"type": "string"
 		},
 		"overview": {
-	    	"type": "string"
+	    	"type": ["string", "null"]
 		},
 		"shorthand_bullet": {
-	    	"type": "string"
+	    	"type": ["string", "null"]
 		},
 		"keywords": {
-	    	"type": "string"
+	    	"type": ["string", "null"]
 		}
     }
 }
