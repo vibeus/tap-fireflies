@@ -8,7 +8,7 @@ LOGGER = singer.get_logger()
 FIREFLIES_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 SCHEMA_NAMES = ['transcripts']
 CUTOFF_SCHEMA_NAME = 'transcripts'
-CUTOFF_FIELD_NAME = 'date'
+CUTOFF_FIELD_NAME = 'meeting_timestamp'
 
 class MeetingInfo:
     def __init__(self):
@@ -25,7 +25,7 @@ class MeetingInfo:
 
     @property
     def replication_key(self):
-        return "date"
+        return "meeting_timestamp"
 
     @property
     def replication_method(self):
@@ -63,7 +63,7 @@ class MeetingInfo:
                                     transcripts(limit: $limit skip: $skip) {
                                         id
                                         title
-                                        date
+                                        meeting_timestamp: date
                                         organizer_email
                                         meeting_info {
                                             summary_status
@@ -96,8 +96,6 @@ class MeetingInfo:
         self._state['meeting_info'] = max_rep_key
     
     def data_processing(self, meeting_info_record):
-        meeting_info_record["meeting_timestamp"] = meeting_info_record["date"]
-        meeting_info_record.pop("date", None)
 
         meeting_info_record["summary_status"] = meeting_info_record["meeting_info"]["summary_status"]
         meeting_info_record.pop("meeting_info", None)
