@@ -85,14 +85,20 @@ class MeetingInfo:
         # In our use case, we only include one schema in one GraphQL query. 
         meeting_info_records = meeting_info_data[CUTOFF_SCHEMA_NAME]
         for meeting_info_record in meeting_info_records:
-            rep_key = meeting_info_record.get(self.replication_key)
-            if rep_key and rep_key > max_rep_key:
-                max_rep_key = rep_key
-            yield self.data_processing(meeting_info_record)
+            # Need to exclude some meetings.
+            # We only want the meeting with customers
+            if "| Vibe" in meeting_info_record['title'] or "<>" in meeting_info_record['title']:
+                rep_key = meeting_info_record.get(self.replication_key)
+                if rep_key and rep_key > max_rep_key:
+                    max_rep_key = rep_key
+                yield self.data_processing(meeting_info_record)
 
         self._state['meeting_info'] = max_rep_key
     
     def data_processing(self, meeting_info_record):
+        meeting_info_record["meeting_timestamp"] = meeting_info_record["date"]
+        meeting_info_record.pop("date", None)
+
         meeting_info_record["summary_status"] = meeting_info_record["meeting_info"]["summary_status"]
         meeting_info_record.pop("meeting_info", None)
 
@@ -100,5 +106,10 @@ class MeetingInfo:
         meeting_info_record['shorthand_bullet'] = meeting_info_record['summary']['shorthand_bullet']
         meeting_info_record['keywords'] = ','.join(meeting_info_record['summary']['keywords'])
         meeting_info_record.pop('summary', None)
+
+        if "| Vibe" in meeting_info_record["title"]:
+            meeting_info_record['meeting_type'] = 'Demo meeting'
+        else:
+            meeting_info_record['meeting_type'] = 'Phone call'
         return meeting_info_record
 

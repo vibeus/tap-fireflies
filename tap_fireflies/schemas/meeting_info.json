@@ -1,0 +1,32 @@
+{
+    "type": "object",
+    "properties": {
+		"id": {
+	    	"type": "string"
+		},
+		"title": {
+	    	"type": "string"
+		},
+		"meeting_timestamp": {
+	    	"type": "number"
+		},
+		"meeting_type": {
+	    	"type": "string"
+		},
+		"organizer_email": {
+	    	"type": "string"
+		},
+		"summary_status": {
+	    	"type": "string"
+		},
+		"overview": {
+	    	"type": "string"
+		},
+		"shorthand_bullet": {
+	    	"type": "string"
+		},
+		"keywords": {
+	    	"type": "string"
+		}
+    }
+}
