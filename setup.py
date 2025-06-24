@@ -3,16 +3,17 @@ from setuptools import setup
 
 setup(
     name="tap-fireflies",
-    version="0.1.0",
-    description="Singer.io tap for extracting data",
-    author="Stitch",
+    version="1.0.0",
+    description="Singer.io tap for extracting Fireflies data",
+    author="Data Team @ Vibe",
     url="http://singer.io",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_fireflies"],
     install_requires=[
         # NB: Pin these to a more specific version for tap reliability
-        "singer-python",
-        "requests",
+        'backoff==2.2.1',
+        'requests==2.32.3',
+        'singer-python==6.0.0'
     ],
     entry_points="""
     [console_scripts]
