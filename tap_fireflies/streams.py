@@ -294,7 +294,7 @@ class Transcripts(IncrementalStream):
     replication_key = "date"
     valid_replication_keys = ["date"]
 
-    def get_records(self, bookmark_datetime: datetime.datetime = None, stream_metadata=None) -> list:
+    def get_records(self, bookmark_datetime: datetime.datetime = None, stream_metadata=None) -> Iterator[list]:
         paging = True
         next_skip = 0
         LOGGER.info("Syncing: {}".format(self.tap_stream_id))
