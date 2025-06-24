@@ -17,6 +17,8 @@ from tap_fireflies.client import (FirefliesClient, FirefliesError, FirefliesObje
 LOGGER = singer.get_logger()
 
 MAX_PAGE_SIZE = 50
+FIREFLIES_MAX_NUM_OF_RECORDS = 50
+FIREFLIES_MEETING_STATUS_TO_EXCLUDE = "processing"
 
 class BaseStream:
     """
@@ -244,12 +246,12 @@ class FullTableStream(BaseStream):
 
 class Users(FullTableStream):
     """
-
+    Retrieves users data using Fireflies GraphQL query.
     """
-    tap_stream_id = 'users'
-    key_properties = ['user_id']
-    endpoint = 'users'
-    schema_key = 'users'
+    tap_stream_id = "users"
+    key_properties = ["user_id"]
+    endpoint = "users"
+    schema_key = "users"
 
     def get_records(self, bookmark_datetime=None) -> Iterator[list]:
         graphql_query = """
@@ -276,11 +278,164 @@ class Users(FullTableStream):
 
         response = self.client.post(path=None, endpoint=self.endpoint, json=input_query)
         if not response.get(self.data_key):
-            LOGGER.critical('response is empty for {} stream'.format(self.tap_stream_id))
+            LOGGER.critical("response is empty for {} stream".format(self.tap_stream_id))
             raise FirefliesError
         
         yield from response.get(self.data_key).get(self.schema_key, [])
 
+class Transcripts(IncrementalStream):
+    """
+    Retrieves transcript data using Fireflies GraphQL query, with manual pagination.
+    """
+    tap_stream_id = "transcripts"
+    key_properties = ["id"]
+    endpoint = "transcripts"
+    schema_key = "transcripts"
+    replication_key = "date"
+    valid_replication_keys = ["date"]
+
+    def get_records(self, bookmark_datetime: datetime.datetime = None, stream_metadata=None) -> list:
+        paging = True
+        next_skip = 0
+        LOGGER.info("Syncing: {}".format(self.tap_stream_id))
+        visited_id = set()
+
+        graphql_query = """
+            query Transcripts(
+            $fromDate: DateTime
+            $toDate: DateTime
+            $limit: Int
+            $skip: Int
+            ) {
+            transcripts(
+                fromDate: $fromDate
+                toDate: $toDate
+                limit: $limit
+                skip: $skip
+            ) {
+                id
+                analytics {
+                sentiments {
+                    negative_pct
+                    neutral_pct
+                    positive_pct
+                }
+                categories {
+                    questions
+                    date_times
+                    metrics
+                    tasks
+                }
+                speakers {
+                    speaker_id
+                    name
+                    duration
+                    word_count
+                    longest_monologue
+                    monologues_count
+                    filler_words
+                    questions
+                    duration_pct
+                    words_per_minute
+                }
+                }
+                sentences {
+                index
+                speaker_id
+                text
+                raw_text
+                start_time
+                end_time
+                }
+                title
+                speakers {
+                id
+                name
+                }
+                organizer_email
+                meeting_info {
+                fred_joined
+                silent_meeting
+                summary_status
+                }
+                participants
+                date
+                duration
+                meeting_attendees {
+                displayName
+                email
+                phoneNumber
+                name
+                location
+                }
+                summary {
+                keywords
+                action_items
+                outline
+                shorthand_bullet
+                overview
+                bullet_gist
+                gist
+                short_summary
+                short_overview
+                meeting_type
+                topics_discussed
+                }
+            }
+            } 
+        """
+
+        graphql_variables = {
+            "fromDate": bookmark_datetime.isoformat(),
+            "toDate": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "limit": FIREFLIES_MAX_NUM_OF_RECORDS,
+            "skip": 0
+        }
+
+        while paging:
+            LOGGER.info("In the process of paging. Current fromDate: {}, toDate: {}".format(graphql_variables["fromDate"], graphql_variables["toDate"]))
+            graphql_input = {
+                "query": graphql_query,
+                "variables": graphql_variables
+            }
+            
+            response = self.client.post(path=None, endpoint=self.endpoint, json=graphql_input)
+            if not response.get(self.data_key):
+                LOGGER.critical("response is empty for {} stream".format(self.tap_stream_id))
+                raise FirefliesError
+            
+            records = response.get(self.data_key).get(self.schema_key, [])
+            num_of_records = len(records)
+            has_new_record = False
+            next_toDate_in_unix_ts = None
+            next_toDate_in_iso_string = None
+
+            for record in records:
+                transcript_id = record.get("id")
+                summary_status = record.get("meeting_info", {}).get("summary_status")
+                if next_toDate_in_unix_ts:
+                    next_toDate_in_unix_ts = min(next_toDate_in_unix_ts, record.get("date"))
+                else:
+                    next_toDate_in_unix_ts = record.get("date")
+                # Skip viewed transcript or transcript that does not have a summary
+                if transcript_id in visited_id or summary_status == FIREFLIES_MEETING_STATUS_TO_EXCLUDE:
+                    continue
+                yield record
+                has_new_record = True
+                visited_id.add(transcript_id)
+            
+            if next_toDate_in_unix_ts:
+                next_toDate_in_iso_dt = datetime.datetime.fromtimestamp(float(next_toDate_in_unix_ts) / 1000.0, datetime.timezone.utc)
+                next_toDate_in_iso_string = next_toDate_in_iso_dt.isoformat()
+                graphql_variables.update({
+                    "toDate": next_toDate_in_iso_string
+                    })
+            
+            # Need a way to stop paging
+            if num_of_records < FIREFLIES_MAX_NUM_OF_RECORDS or not has_new_record or not next_toDate_in_iso_string:
+                paging = False
+
 STREAMS = {
     "users": Users,
+    "transcripts": Transcripts,
 }
