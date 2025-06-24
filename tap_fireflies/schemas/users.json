@@ -1,0 +1,47 @@
+{
+    "type": "object",
+    "properties": {
+		"user_id": {
+	    	"type": "string"
+		},
+		"email": {
+	    	"type": "string"
+		},
+		"name": {
+	    	"type": "string"
+		},
+		"num_transcripts": {
+	    	"type": ["null", "number"]
+		},
+		"recent_meeting": {
+	    	"type": ["null", "string"]
+		},
+		"minutes_consumed": {
+	    	"type": ["null", "number"]
+		},
+		"is_admin": {
+	    	"type": ["null", "boolean"]
+		},
+		"integrations": {
+	    	"type": ["null", "array"],
+			"items": {
+				"type": ["null", "string"]
+			},
+			"additionalProperties": false
+		},
+		"user_groups": {
+	    	"type": ["null", "array"],
+			"items": {
+				"type": ["null", "object"],
+				"properties": {
+					"name": {
+						"type": ["null", "string"]
+					},
+					"handle": {
+						"type": ["null", "string"]					
+					}
+				}
+			}
+		}
+    }
+}
