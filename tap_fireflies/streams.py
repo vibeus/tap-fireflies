@@ -343,7 +343,6 @@ class Transcripts(IncrementalStream):
                 index
                 speaker_id
                 text
-                raw_text
                 start_time
                 end_time
                 }
