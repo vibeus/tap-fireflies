@@ -1,0 +1,212 @@
+{
+    "type": "object",
+    "properties": {
+		"id": {
+	    	"type": "string"
+		},
+		"analytics": {
+	    	"type": ["null", "object"],
+            "properties": {
+                "sentiments": {
+                    "type": ["null", "object"],
+                    "properties": {
+                        "negative_pct": {
+                            "type": ["null", "number"]
+                        },
+                        "neutral_pct": {
+                            "type": ["null", "number"]
+                        },
+                        "positive_pct": {
+                            "type": ["null", "number"]
+                        }                 
+                    }
+                },
+                "categories": {
+                    "type": ["null", "object"],
+                    "properties": {
+                        "questions": {
+                            "type": ["null", "number"]
+                        },
+                        "date_times": {
+                            "type": ["null", "number"]
+                        },
+                        "metrics": {
+                            "type": ["null", "number"]
+                        },
+                        "tasks": {
+                            "type": ["null", "number"]
+                        }                                              
+                    }                    
+                },
+                "speakers": {
+                    "type": ["null", "array"],
+                    "items": {
+                        "type": ["null", "object"],
+                        "properties": {
+                            "speaker_id": {
+                                "type": ["null", "string"]
+                            },
+                            "name": {
+                                "type": ["null", "string"]
+                            },
+                            "duration": {
+                                "type": ["null", "number"]
+                            },
+                            "word_count": {
+                                "type": ["null", "number"]
+                            },
+                            "longest_monologue": {
+                                "type": ["null", "number"]
+                            },
+                            "monologues_count": {
+                                "type": ["null", "number"]
+                            },
+                            "filler_words": {
+                                "type": ["null", "number"]
+                            },
+                            "questions": {
+                                "type": ["null", "number"]
+                            },
+                            "duration_pct": {
+                                "type": ["null", "number"]
+                            },
+                            "words_per_minute": {
+                                "type": ["null", "number"]
+                            }                                              
+                        }
+                    }
+                }
+            }
+		},
+        "sentences": {
+            "type": ["null", "array"],
+            "items": {
+                "type": ["null", "object"],
+                "properties": {
+                    "index": {
+                        "type": ["null", "integer"]
+                    },
+                    "speaker_id": {
+                        "type": ["null", "string"]
+                    },
+                    "text": {
+                        "type": ["null", "string"]
+                    },
+                    "start_time": {
+                        "type": ["null", "number"]
+                    },
+                    "end_time": {
+                        "type": ["null", "number"]
+                    }
+                }
+            }
+        },
+		"title": {
+	    	"type": ["null", "string"]
+		},
+		"speakers": {
+	    	"type": ["null", "array"],
+            "items": {
+                "type": ["null", "object"],
+                "properties": {
+                    "id": {
+                        "type": ["null", "string"]
+                    },
+                    "name": {
+                        "type": ["null", "string"]
+                    }                    
+                }
+            }
+		},
+		"organizer_email": {
+	    	"type": ["null", "string"]
+		},
+		"meeting_info": {
+	    	"type": ["null", "object"],
+            "properties": {
+                "fred_joined": {
+                    "type": ["null", "boolean"]
+                },
+                "silent_meeting": {
+                    "type": ["null", "boolean"]
+                },
+                "summary_status": {
+                    "type": ["null", "string"]
+                }
+            }
+		},
+		"participants": {
+	    	"type": ["null", "array"],
+			"items": {
+				"type": ["null", "string"]
+			},
+			"additionalProperties": false
+		},
+		"date": {
+	    	"type": ["null", "string"],
+            "format": "date-time"
+		},
+		"duration": {
+	    	"type": ["null", "number"]
+		},
+		"meeting_attendees": {
+	    	"type": ["null", "object"],
+            "properties": {
+                "displayName": {
+                    "type": ["null", "string"]
+                },
+                "email": {
+                    "type": ["null", "string"]
+                },
+                "phoneNumber": {
+                    "type": ["null", "string"]
+                },
+                "name": {
+                    "type": ["null", "string"]
+                },
+                "location": {
+                    "type": ["null", "string"]
+                }               
+            }
+		},
+        "summary": {
+            "type": ["null", "object"],
+            "properties": {
+                "keywords": {
+                    "type": ["null", "array"],
+                    "items": {
+                        "type": ["null", "string"]
+                    }
+                },
+                "action_items": {
+                    "type": ["null", "string"]
+                },
+                "outline": {
+                    "type": ["null", "string"]
+                },
+                "shorthand_bullet": {
+                    "type": ["null", "string"]
+                },
+                "overview": {
+                    "type": ["null", "string"]
+                },
+                "bullet_gist": {
+                    "type": ["null", "string"]
+                },
+                "gist": {
+                    "type": ["null", "string"]
+                },
+                "short_summary": {
+                    "type": ["null", "string"]
+                },
+                "short_overview": {
+                    "type": ["null", "string"]
+                },
+                "meeting_type": {
+                    "type": ["null", "string"]
+                }
+            }
+        }
+ 
+    }
+}
