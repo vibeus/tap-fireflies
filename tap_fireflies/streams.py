@@ -378,7 +378,6 @@ class Transcripts(IncrementalStream):
                 short_summary
                 short_overview
                 meeting_type
-                topics_discussed
                 }
             }
             } 
