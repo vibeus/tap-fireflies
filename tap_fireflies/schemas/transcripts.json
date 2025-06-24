@@ -150,23 +150,26 @@
 	    	"type": ["null", "number"]
 		},
 		"meeting_attendees": {
-	    	"type": ["null", "object"],
-            "properties": {
-                "displayName": {
-                    "type": ["null", "string"]
-                },
-                "email": {
-                    "type": ["null", "string"]
-                },
-                "phoneNumber": {
-                    "type": ["null", "string"]
-                },
-                "name": {
-                    "type": ["null", "string"]
-                },
-                "location": {
-                    "type": ["null", "string"]
-                }               
+            "type": ["null", "array"],
+            "items": {
+                "type": ["null", "object"],
+                "properties": {
+                    "displayName": {
+                        "type": ["null", "string"]
+                    },
+                    "email": {
+                        "type": ["null", "string"]
+                    },
+                    "phoneNumber": {
+                        "type": ["null", "string"]
+                    },
+                    "name": {
+                        "type": ["null", "string"]
+                    },
+                    "location": {
+                        "type": ["null", "string"]
+                    }               
+                }
             }
 		},
         "summary": {
