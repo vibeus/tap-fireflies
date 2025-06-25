@@ -5,20 +5,18 @@ Credit: https://github.com/singer-io/tap-intercom/blob/master/tap_intercom/strea
 
 import datetime
 import hashlib
-import time
 from typing import Iterator
 
 import singer
-from singer import Transformer, metrics, metadata, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING
+from singer import Transformer, metrics, UNIX_MILLISECONDS_INTEGER_DATETIME_PARSING
 from singer.transform import transform, unix_milliseconds_to_datetime
 
-from tap_fireflies.client import (FirefliesClient, FirefliesError, FirefliesObjectNotFoundError)
+from tap_fireflies.client import (FirefliesClient, FirefliesError)
 
 LOGGER = singer.get_logger()
 
 MAX_PAGE_SIZE = 50
 FIREFLIES_MAX_NUM_OF_RECORDS = 50
-FIREFLIES_MEETING_STATUS_TO_EXCLUDE = "processing"
 
 class BaseStream:
     """
@@ -88,7 +86,7 @@ class BaseStream:
     def sync_substream(self, parent_id, stream_schema, stream_metadata, parent_replication_key, state):
         """
             Sync sub-stream data based on parent id and update the state to parent's replication value.
-            For Fireflies, we do not need to sync sub-stream. But we do need to that for Aircall. 
+            For Fireflies, we do not need to sync sub-stream. But we do need that for Aircall. 
         """
         raise NotImplementedError("In case that you need to sync substream, please refer to: https://github.com/singer-io/tap-intercom/blob/2d5e983bc437769ffaefb2dbd95f1ab596b47b2d/tap_intercom/streams.py#L91")
 
@@ -185,6 +183,7 @@ class IncrementalStream(BaseStream):
                     max_datetime = max(record_datetime, max_datetime)
 
                 if record_counter == MAX_PAGE_SIZE:
+                    # For fireflies, we haven't enabled intermediate bookmark.
                     self.write_intermediate_bookmark(state, record.get("id"), max_datetime)
                     # Reset counter
                     record_counter = 0
@@ -296,7 +295,6 @@ class Transcripts(IncrementalStream):
 
     def get_records(self, bookmark_datetime: datetime.datetime = None, stream_metadata=None) -> Iterator[list]:
         paging = True
-        next_skip = 0
         LOGGER.info("Syncing: {}".format(self.tap_stream_id))
         visited_id = set()
 
@@ -415,8 +413,8 @@ class Transcripts(IncrementalStream):
                     next_toDate_in_unix_ts = min(next_toDate_in_unix_ts, record.get("date"))
                 else:
                     next_toDate_in_unix_ts = record.get("date")
-                # Skip viewed transcript or transcript that does not have a summary
-                if transcript_id in visited_id or summary_status == FIREFLIES_MEETING_STATUS_TO_EXCLUDE:
+                # Skip transcript that has been 'visited'
+                if transcript_id in visited_id:
                     continue
                 yield record
                 has_new_record = True
