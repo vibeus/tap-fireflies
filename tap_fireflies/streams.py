@@ -148,10 +148,10 @@ class IncrementalStream(BaseStream):
         :return: State data in the form of a dictionary
         """
 
-        # Get current stream bookmark (Credit: it's modified from tap-intercom. The variable naming could be better)
-        parent_bookmark = singer.get_bookmark(state, self.tap_stream_id, self.replication_key, config['start_date'])
-        parent_bookmark_utc = singer.utils.strptime_to_utc(parent_bookmark)
-        sync_start_date = parent_bookmark_utc
+        # Get current stream bookmark (Credit: it's modified from tap-intercom.)
+        current_bookmark = singer.get_bookmark(state, self.tap_stream_id, self.replication_key, config['start_date'])
+        current_bookmark_utc = singer.utils.strptime_to_utc(current_bookmark)
+        sync_start_date = current_bookmark_utc
         self.set_last_processed(state)
         self.set_last_sync_started_at(state)
 
@@ -163,7 +163,6 @@ class IncrementalStream(BaseStream):
 
         with metrics.record_counter(self.tap_stream_id) as counter:
             for record in self.get_records(sync_start_date, stream_metadata=stream_metadata):
-                # In case of interrupted sync, skip records last synced conversations
                 all_counter += 1
 
                 record_datetime = singer.utils.strptime_to_utc(
@@ -171,7 +170,7 @@ class IncrementalStream(BaseStream):
                         record[self.replication_key])
                 )
 
-                if record_datetime >= parent_bookmark_utc:
+                if record_datetime >= current_bookmark_utc:
                     record_counter += 1
                     transformed_record = transform(record,
                                                    stream_schema,
