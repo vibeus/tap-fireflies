@@ -349,6 +349,7 @@ class Transcripts(IncrementalStream):
                 name
                 }
                 organizer_email
+                meeting_link
                 meeting_info {
                 fred_joined
                 silent_meeting

@@ -121,6 +121,9 @@
 		"organizer_email": {
 	    	"type": ["null", "string"]
 		},
+		"meeting_link": {
+	    	"type": ["null", "string"]
+		},
 		"meeting_info": {
 	    	"type": ["null", "object"],
             "properties": {
