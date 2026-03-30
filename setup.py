@@ -12,7 +12,7 @@ setup(
     install_requires=[
         # NB: Pin these to a more specific version for tap reliability
         'backoff==2.2.1',
-        'requests==2.32.3',
+        'requests==2.33.0',
         'singer-python==6.0.0'
     ],
     entry_points="""
